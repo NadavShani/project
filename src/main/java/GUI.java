@@ -61,8 +61,8 @@ public class GUI extends JPanel {
             if(e.getSource() == logs){
                 remove(connectionPanel);
                 add(logPanel,BorderLayout.CENTER);
-                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
-                System.out.println(parentFrame);
+                /*JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(getParent());
+                System.out.println(parentFrame); */
                 revalidate();
                 repaint();
             }
