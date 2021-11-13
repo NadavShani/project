@@ -32,7 +32,7 @@ public class diffieThread extends Thread {
         }
         catch (Exception e){
             e.printStackTrace();
-            /* in order to premit the client to trying again in the future */
+            /* in order to permit the client to trying again in the future */
             prodInstance.sourcesTryingToDiffie.remove(connecctToAddress);
         }
     }
