@@ -58,6 +58,7 @@ public class production {
         production prod = new production();
 
         byte [] payload,nadav2;
+        byte [] prod3;
 
         /* Open Windivert Handle */
         prod.w = new WinDivert("tcp.DstPort = 21 or tcp.DstPort = 20");
