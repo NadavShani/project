@@ -20,6 +20,7 @@ public class Client
     private aliceDH alice = null;
     private boolean isConnected = false;
     private AES aes;
+    private final int maxAttempts = 5;
 
 
     protected AES getAes(){
@@ -32,9 +33,10 @@ public class Client
     }
 
     // constructor to put ip address and port
-    public Client(String address, int port) {
+    public Client(String address, int port) throws Exception {
 
         isConnected=false;
+        int attempt=0;
         /* establish a connection to host address */
         while(!isConnected) {
             try {
@@ -49,13 +51,20 @@ public class Client
                 out = new DataOutputStream(socket.getOutputStream());
                 isConnected = true;
             } catch (Exception e) {
-                LogPanel.logEvent("Time Out - Will Retry Again in 3 Seconds");
-                try {
-                    Thread.sleep(3000);
+                if(attempt < maxAttempts) {
+                    attempt++;
+                    LogPanel.logEvent("Time Out - Will Retry Again in 3 Seconds (attempt: " + attempt + "/" + maxAttempts + ")");
+                    try {
+                        Thread.sleep(2000);
+                    }
+                    catch (InterruptedException t) {
+                        t.printStackTrace();
+                        System.exit(1);
+                    }
                 }
-                catch (InterruptedException t) {
-                    t.printStackTrace();
-                    System.exit(1);
+                else {
+                    LogPanel.logEvent("Diffie Hellman Connection Failed ...");
+                    throw new Exception("Diffie Hellman Failed with: " + address);
                 }
             }
         }
@@ -119,27 +128,24 @@ public class Client
            // } catch (BadPaddingException e) {
              //   e.printStackTrace();
            // }
+            /* close connection */
+            try
+            {
+                in.close();
+                out.close();
+                socket.close();
+                LogPanel.logEvent("secret generated");
+                LogPanel.logEvent("closing Socket");
 
+
+
+            }
+            catch(IOException i)
+            {
+                System.out.println(i);
+            }
         }
 
-
-
-        /* close connection */
-        try
-        {
-            in.close();
-            out.close();
-            socket.close();
-            LogPanel.logEvent("secret generated");
-            LogPanel.logEvent("closing Socket");
-
-
-
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
     }
 
 
@@ -157,7 +163,7 @@ public class Client
     }
 
     public static void main(String args[]) {
-        Client client = new Client("51.116.128.233", 5300);
+
     }
 
 

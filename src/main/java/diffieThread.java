@@ -26,8 +26,14 @@ public class diffieThread extends Thread {
     }
 
     public void run(){
-        byte [] clientSecret;
-        client = new Client(connecctToAddress, port);
-        prodInstance.addHostInstance(client.getSocket().getInetAddress(),client.getAes());
+        try {
+            client = new Client(connecctToAddress, port);
+            prodInstance.addHostInstance(client.getSocket().getInetAddress(),client.getAes());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            /* in order to premit the client to trying again in the future */
+            prodInstance.sourcesTryingToDiffie.remove(connecctToAddress);
+        }
     }
 }

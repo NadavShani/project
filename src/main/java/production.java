@@ -23,7 +23,7 @@ public class production {
     private GUI gui;
     private JFrame frame;
     private WinDivert w;
-    private ArrayList<String> sourcesTryingToDiffie;
+    protected ArrayList<String> sourcesTryingToDiffie;
 
     public production(){
 
@@ -58,7 +58,7 @@ public class production {
         production prod = new production();
 
         byte [] payload,nadav2;
-        byte [] prod3;
+
 
         /* Open Windivert Handle */
         prod.w = new WinDivert("tcp.DstPort = 21 or tcp.DstPort = 20");
@@ -99,7 +99,7 @@ public class production {
                     prod.frame.setSize(frameWidth,frameHeight);*/
 
                 }
-                else {
+                else if(isHostExists) {
 
                     /* get Host - ****need to take care of the case when host is null */
                     HostInstance hi = prod.getHostInstance(hostAddress);
@@ -151,7 +151,7 @@ public class production {
         frame.setSize(frameWidth,frameHeight);
 
         /* remove from list of trying in order to prevent cocurrency */
-        System.out.println(sourcesTryingToDiffie.remove(hostAddress.getHostAddress()));
+        sourcesTryingToDiffie.remove(hostAddress.getHostAddress());
 
     }
 
