@@ -72,7 +72,7 @@ public class production {
         prod.w = new WinDivert(filter);
         prod.w.open(); // packets will be captured from now on
 
-        /* Main Loop */
+        /* Main Loop * /
         while (true) {
             try {
 
