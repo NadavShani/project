@@ -53,7 +53,7 @@ public class Client
             } catch (Exception e) {
                 if(attempt < maxAttempts) {
                     attempt++;
-                    LogPanel.logEvent("Time Out - Will Retry Again in 3 Seconds (attempt: " + attempt + "/" + maxAttempts + ")");
+                    LogPanel.logEvent("Time Out - Will Retry Again in 2 Seconds (attempt: " + attempt + "/" + maxAttempts + ")");
                     try {
                         Thread.sleep(2000);
                     }
