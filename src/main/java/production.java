@@ -1,11 +1,16 @@
 import com.github.ffalcinelli.jdivert.*;
 import com.github.ffalcinelli.jdivert.exceptions.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,18 +45,6 @@ public class production {
         sourcesTryingToDiffie = new ArrayList<String>();
     }
 
-    protected ArrayList<HostInstance> getHosts(){
-        return this.hosts;
-    }
-
-    protected int getFrameWidth(){
-        return this.frameWidth;
-    }
-
-    protected int getFrameHeight(){
-        return this.frameHeight;
-    }
-
     public static void main(String[] args) throws WinDivertException {
 
         /* Production class */
@@ -59,11 +52,11 @@ public class production {
 
         byte [] payload,nadav2;
 
-
         /* Open Windivert Handle */
         prod.w = new WinDivert("tcp.DstPort = 21 or tcp.DstPort = 20");
         prod.w.open(); // packets will be captured from now on
 
+        /* Main Loop */
         while (true) {
             try {
 
@@ -78,40 +71,36 @@ public class production {
                     LogPanel.logEvent("Unsecured Protocol Detected (" + packet.getTcp().getDstPort() + ")  ...");
                     LogPanel.logEvent("Intializing diffie-hellman with target " + packet.getDstAddr() + " ...");
                     while(!prod.sendNotificationToHost(packet));
-
                     /* Connect Client */
                     diffieThread df = new diffieThread(hostAddress, diffiePort,prod);
-
-/*
-                    client = new Client(hostAddress, diffiePort);
-                    AES secretAES = client.getAes();
-
-                    /* Add Host
-                    LocalDateTime ldt = LocalDateTime.now();
-                    HostInstance hostInstance = new HostInstance(new Date(), DateTimeFormatter.ofPattern("MM-dd-yyyy - HH:mm:ss", Locale.ENGLISH).format(ldt),client.getSocket().getInetAddress().getHostName(),client.getSocket().getInetAddress().getHostAddress(),secretAES);
-                    prod.hosts.add(hostInstance);*/
-
-                    /* Add Host To Gui And Repaint
-                    ConnectionItem connectionItem = new ConnectionItem(hostInstance);
-                    prod.gui.getConnectionPanel().add(connectionItem);
-                    prod.gui.repaint();
-                    prod.frame.pack();
-                    prod.frame.setSize(frameWidth,frameHeight);*/
 
                 }
                 else if(isHostExists) {
 
-                    /* get Host - ****need to take care of the case when host is null */
-                    HostInstance hi = prod.getHostInstance(hostAddress);
-                    /* encrypt payload with host aes's secret */
-                    payload = hi.getAes().encrypt(packet.getPayload());
-                    Packet p = prod.generateNewPacketWithPaylod(packet, payload);
-                    p.recalculateChecksum(); //checksum
+                    class RunMe implements Runnable {
+                        private production prod;
+                        private String hostAddress;
+                        public RunMe(production prodInstance,String hostAddress){
+                            this.prod=prodInstance;
+                            this.hostAddress=hostAddress;
+                        }
 
-                    prod.w.send(p, true); //send to server
-                    LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
+                        @Override
+                        public void run() {
+                            HostInstance hi = this.prod.getHostInstance(hostAddress);
+                            try {
+                                byte [] payload = hi.getAes().encrypt(packet.getPayload());
+                                Packet p = this.prod.generateNewPacketWithPaylod(packet, payload);
+                                p.recalculateChecksum(); //checksum
+                                prod.w.send(p, true); //send to server
+                                LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    new RunMe(prod,hostAddress).run();
                 }
-
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -140,7 +129,7 @@ public class production {
     }
 
     /* Add Host Instance To Production Host Instances, this function is called by diffie thread , also handle gui */
-    public void addHostInstance(InetAddress hostAddress, AES aes){
+    public synchronized void addHostInstance(InetAddress hostAddress, AES aes){
         HostInstance hostInstance = new HostInstance(new Date(), DateTimeFormatter.ofPattern("MM-dd-yyyy - HH:mm:ss", Locale.ENGLISH).format(LocalDateTime.now()),hostAddress.getHostName(),hostAddress.getHostAddress(),aes);
         hosts.add(hostInstance);
 
@@ -194,6 +183,20 @@ public class production {
         return p;
 
     }
+
+    /************** GETTERS **************/
+    protected ArrayList<HostInstance> getHosts(){
+        return this.hosts;
+    }
+
+    protected int getFrameWidth(){
+        return this.frameWidth;
+    }
+
+    protected int getFrameHeight(){
+        return this.frameHeight;
+    }
+
 
     protected static String toHexString(byte[] block) {
         StringBuffer buf = new StringBuffer();
