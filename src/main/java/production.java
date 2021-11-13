@@ -6,6 +6,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Scanner;
 
 
 public class production {
@@ -45,15 +48,28 @@ public class production {
         sourcesTryingToDiffie = new ArrayList<String>();
     }
 
-    public static void main(String[] args) throws WinDivertException {
+    public static void main(String[] args) throws WinDivertException, FileNotFoundException {
 
         /* Production class */
         production prod = new production();
 
-        byte [] payload,nadav2;
+        /* read unsecured protocols file*/
+        File file = new File("unsecured.config");
+        Scanner myReader = new Scanner(file);
+        ArrayList<Integer> unsecuredProtocols = new ArrayList<Integer>();
+        while (myReader.hasNextLine())
+            unsecuredProtocols.add(Integer.parseInt(myReader.nextLine()));
+
+        String filter = new String();
+        for(int i=0;i<unsecuredProtocols.size();i++) {
+            if(i < unsecuredProtocols.size() -1)
+                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or ";
+            else
+                filter += "tcp.DstPort = " + unsecuredProtocols.get(i);
+        }
 
         /* Open Windivert Handle */
-        prod.w = new WinDivert("tcp.DstPort = 21 or tcp.DstPort = 20");
+        prod.w = new WinDivert(filter);
         prod.w.open(); // packets will be captured from now on
 
         /* Main Loop */
@@ -220,4 +236,3 @@ public class production {
     }
 
 }
-
