@@ -38,7 +38,6 @@ public class AES {
 
     }
 
-
     /*Get Secret Key As String from AES */
     public String getKeyFromAes(){
         return toHexString(this.secret.getEncoded());

@@ -48,11 +48,14 @@ public class production {
         sourcesTryingToDiffie = new ArrayList<String>();
     }
 
+
     public static void main(String[] args) throws WinDivertException, FileNotFoundException {
 
         /* Production class */
         production prod = new production();
-
+        System.out.println("22222");
+      //  System.out.println(System.getProperty("jna.library.path"));
+      //  System.loadLibrary("Windivert");
         /* read unsecured protocols file*/
         File file = new File("unsecured.config");
         Scanner myReader = new Scanner(file);
@@ -77,7 +80,6 @@ public class production {
             try {
 
                 Packet packet = prod.w.recv();  // read a single packet
-
                 /* Is Host Exists? */
                 String hostAddress = packet.getIpv4().getDstAddrStr();
                 boolean isHostExists = prod.IsHostExists(hostAddress);
@@ -161,7 +163,7 @@ public class production {
     }
 
 
-    /* get host from hostInstance list , return null otherwise */
+    /* get host from hostInstance list by ip , return null otherwise */
     public HostInstance getHostInstance(String ip){
         HostInstance result = null;
         for(HostInstance hi : hosts)

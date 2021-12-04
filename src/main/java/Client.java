@@ -53,7 +53,7 @@ public class Client
             } catch (Exception e) {
                 if(attempt < maxAttempts) {
                     attempt++;
-                    LogPanel.logEvent("Time Out - Will Retry Again in 2 Seconds (attempt: " + attempt + "/" + maxAttempts + ")");
+                    LogPanel.logEvent("Time Out - Will Retry Again in 2 Seconds (attempt: " + attempt + "/" + maxAttempts + ") - " + address);
                     try {
                         Thread.sleep(2000);
                     }
@@ -63,7 +63,7 @@ public class Client
                     }
                 }
                 else {
-                    LogPanel.logEvent("Diffie Hellman Connection Failed ...");
+                    LogPanel.logEvent("Diffie Hellman Failed with: " + address);
                     throw new Exception("Diffie Hellman Failed with: " + address);
                 }
             }
