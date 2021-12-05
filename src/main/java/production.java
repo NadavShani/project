@@ -1,5 +1,7 @@
 import com.github.ffalcinelli.jdivert.*;
 import com.github.ffalcinelli.jdivert.exceptions.*;
+import com.github.ffalcinelli.jdivert.windivert.TemporaryDirManager;
+import com.sun.jna.Platform;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -53,8 +55,9 @@ public class production {
 
         /* Production class */
         production prod = new production();
-        System.out.println("22222");
-      //  System.out.println(System.getProperty("jna.library.path"));
+
+       // System.out.println("22222");
+
       //  System.loadLibrary("Windivert");
         /* read unsecured protocols file*/
         File file = new File("unsecured.config");
@@ -73,6 +76,7 @@ public class production {
 
         /* Open Windivert Handle */
         prod.w = new WinDivert(filter);
+        System.out.println(Platform.is64Bit());
         prod.w.open(); // packets will be captured from now on
 
         /** Main Loop **/
@@ -161,7 +165,6 @@ public class production {
         sourcesTryingToDiffie.remove(hostAddress.getHostAddress());
 
     }
-
 
     /* get host from hostInstance list by ip , return null otherwise */
     public HostInstance getHostInstance(String ip){
