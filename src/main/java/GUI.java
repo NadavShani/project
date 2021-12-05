@@ -36,7 +36,7 @@ public class GUI extends JPanel {
         menu.setLayout(new GridLayout(1, 7));
         menu.setBackground(Color.GRAY);
         menu.add(connections);
-        menu.add(ports);
+        //menu.add(ports);
         menu.add(logs);
         add(menu,BorderLayout.NORTH);
 
