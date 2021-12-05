@@ -29,6 +29,7 @@ public class diffieThread extends Thread {
         try {
             client = new Client(connecctToAddress, port);
             prodInstance.addHostInstance(client.getSocket().getInetAddress(),client.getAes());
+            Notification popup = new Notification("New Connection Established", "Key Exchanged With " + connecctToAddress);
         }
         catch (Exception e){
             e.printStackTrace();

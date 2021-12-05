@@ -38,7 +38,7 @@ public class production {
     public production(){
 
         /* Production Frame */
-        frame = new JFrame("tcpEncrypt");
+        frame = new JFrame("TcpEncrypt");
         gui = new GUI();
 
         frame.add(gui);
