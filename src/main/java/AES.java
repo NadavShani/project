@@ -52,10 +52,10 @@ public class AES {
 
     }
 
-    public byte [] encrypt(byte [] clearText) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+    public byte [] encrypt(byte [] clearText) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
        // this.cipher.init(Cipher.ENCRYPT_MODE, this.secret);
         if(isEncryptMode == false) {
-            this.cipher.init(Cipher.ENCRYPT_MODE, this.secret);
+            this.cipher.init(Cipher.ENCRYPT_MODE, this.secret, this.aesParams);
             isEncryptMode = true;
         }
         return this.cipher.doFinal(clearText);

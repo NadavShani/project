@@ -51,13 +51,11 @@ public class aliceDH {
         }
     }
 
-
     public void generateSecret(){
         aliceSharedSecret = aliceKeyAgree.generateSecret();
         LogPanel.logEvent("Alice secret: " +
                 toHexString(aliceSharedSecret));
     }
-
 
     public void phase(byte [] bobPubKeyEnc ) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
         aliceKeyFac = KeyFactory.getInstance("DH");

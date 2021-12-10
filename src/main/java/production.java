@@ -71,7 +71,7 @@ public class production {
             if(i < unsecuredProtocols.size() -1)
                 filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or ";
             else
-                filter += "tcp.DstPort = " + unsecuredProtocols.get(i);
+                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or tcp.SrcPort = 21";
         }
 
         /* Open Windivert Handle */
@@ -86,49 +86,68 @@ public class production {
                 Packet packet = prod.w.recv();  // read a single packet
                 /* Is Host Exists? */
                 String hostAddress = packet.getIpv4().getDstAddrStr();
-                boolean isHostExists = prod.IsHostExists(hostAddress);
-                if(!isHostExists && !prod.sourcesTryingToDiffie.contains(hostAddress)){
-                    prod.sourcesTryingToDiffie.add(hostAddress);
-                    /* Send Notification To Server To Start Diffie Hellman - Until Success */
-                    LogPanel.logEvent("Unsecured Protocol Detected (" + packet.getTcp().getDstPort() + ")  ...");
-                    LogPanel.logEvent("Intializing diffie-hellman with target " + packet.getDstAddr() + " ...");
-                    while(!prod.sendNotificationToHost(packet));
-                    /* Connect Client */
-                    diffieThread df = new diffieThread(hostAddress, diffiePort,prod);
 
-                }
-                else if(isHostExists) {
-
-                    class RunMe implements Runnable {
-                        private production prod;
-                        private String hostAddress;
-                        public RunMe(production prodInstance,String hostAddress){
-                            this.prod=prodInstance;
-                            this.hostAddress=hostAddress;
+                if (hostAddress.equals("192.168.1.192")) {
+                    if (prod.IsHostExists(packet.getSrcAddr())) {
+                        HostInstance hi = prod.getHostInstance(packet.getSrcAddr());
+                        try {
+                            byte[] payload;
+                            payload = hi.getAes().decrypt(packet.getPayload());
+                            Packet p = prod.generateNewPacketWithPaylod(packet, payload); //create new packet with encrypted payload
+                            p.recalculateChecksum(); //checksum
+                            prod.w.send(p, true); //send to server
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
-                        @Override
-                        public void run() {
-                            HostInstance hi = this.prod.getHostInstance(hostAddress);
-                            try {
-                                byte [] payload = hi.getAes().encrypt(packet.getPayload());
-                                Packet p = this.prod.generateNewPacketWithPaylod(packet, payload);
-                                p.recalculateChecksum(); //checksum
-                                prod.w.send(p, true); //send to server
-                                LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
-                            } catch (Exception e){
-                                e.printStackTrace();
+                    }
+                } else {
+
+                    boolean isHostExists = prod.IsHostExists(hostAddress);
+                    if (!isHostExists && !prod.sourcesTryingToDiffie.contains(hostAddress)) {
+                        prod.sourcesTryingToDiffie.add(hostAddress);
+                        /* Send Notification To Server To Start Diffie Hellman - Until Success */
+                        LogPanel.logEvent("Unsecured Protocol Detected (" + packet.getTcp().getDstPort() + ")  ...");
+                        LogPanel.logEvent("Intializing diffie-hellman with target " + packet.getDstAddr() + " ...");
+                        while (!prod.sendNotificationToHost(packet)) ;
+                        /* Connect Client */
+                        diffieThread df = new diffieThread(hostAddress, diffiePort, prod);
+
+                    } else if (isHostExists) {
+
+                        class RunMe implements Runnable {
+                            private production prod;
+                            private String hostAddress;
+
+                            public RunMe(production prodInstance, String hostAddress) {
+                                this.prod = prodInstance;
+                                this.hostAddress = hostAddress;
+                            }
+
+                            @Override
+                            public void run() {
+                                HostInstance hi = this.prod.getHostInstance(hostAddress);
+                                try {
+                                    byte[] payload;
+                                    payload = hi.getAes().encrypt(packet.getPayload());
+                                    Packet p = this.prod.generateNewPacketWithPaylod(packet, payload);
+                                    p.recalculateChecksum(); //checksum
+                                    prod.w.send(p, true); //send to server
+                                    LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
+                        new RunMe(prod, hostAddress).run();
                     }
-                    new RunMe(prod,hostAddress).run();
                 }
             }
-            catch (Exception e){
-                e.printStackTrace();
+            catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
-    }
 
     /* if packet source ip is not in hosts list,  we should request server to start listening to diffie hellman */
     public boolean sendNotificationToHost(Packet old){
