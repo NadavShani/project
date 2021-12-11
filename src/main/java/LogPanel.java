@@ -72,7 +72,6 @@ public class LogPanel extends JPanel {
                     showLogsEnable = true;
                     showPayloadLogs.setSelected(true);
                 }
-                System.out.println(showLogsEnable);
             }
         }
     }
