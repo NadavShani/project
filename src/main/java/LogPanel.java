@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -10,6 +13,8 @@ public class LogPanel extends JPanel {
 
     private static JTextArea logTextArea;
     private static JScrollPane scroll;
+    private static JCheckBox showPayloadLogs;
+    private static boolean showLogsEnable;
 
     public LogPanel(){
 
@@ -17,13 +22,19 @@ public class LogPanel extends JPanel {
         setVisible(true);
         setLayout(new BorderLayout());
         add(new JLabel("<html> <font color='black'>System Logs:</font></html>"),BorderLayout.NORTH);
-
+        showLogsEnable = true;
+        showPayloadLogs = new JCheckBox("show packet payloads",true);
+        showPayloadLogs.setBounds(100,100, 50,50);
+        itemListener listener = new itemListener();
+        showPayloadLogs.addItemListener(listener);
+        add(showPayloadLogs,BorderLayout.SOUTH);
         logTextArea  = new JTextArea();
         logTextArea.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(0.5f)));
 
         scroll = new JScrollPane(logTextArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         //add(scroll,BorderLayout.EAST);
         add(scroll,BorderLayout.CENTER);
+
     }
 
     public static final LogPanel getInstance(){
@@ -42,6 +53,28 @@ public class LogPanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         System.out.println();
+    }
+
+    public static boolean getShowLogsEnable(){
+        return showLogsEnable;
+    }
+
+    class itemListener implements ItemListener {
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if(e.getSource() == showPayloadLogs ) {
+                if(showLogsEnable){
+                    showLogsEnable = false;
+                    showPayloadLogs.setSelected(false);
+                }
+                else {
+                    showLogsEnable = true;
+                    showPayloadLogs.setSelected(true);
+                }
+                System.out.println(showLogsEnable);
+            }
+        }
     }
 
 

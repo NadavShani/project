@@ -170,7 +170,8 @@ public class production {
                                     Packet p = this.prod.generateNewPacketWithPaylod(packet, payload);
                                     p.recalculateChecksum(); //checksum
                                     prod.w.send(p, false); //send to server
-                                    LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
+                                    if(LogPanel.getShowLogsEnable()) /* Show Packet Payload on it's way out */
+                                        LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
