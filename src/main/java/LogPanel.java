@@ -52,7 +52,6 @@ public class LogPanel extends JPanel {
     }
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        System.out.println();
     }
 
     public static boolean getShowLogsEnable(){
