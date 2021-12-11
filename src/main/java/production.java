@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -18,10 +20,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class production {
@@ -36,6 +35,7 @@ public class production {
     private WinDivert w;
     protected ArrayList<String> sourcesTryingToDiffie;
     private String localAddress = null;
+    private ArrayList<String> machineLocalAddresses;
 
     public production(){
 
@@ -50,7 +50,24 @@ public class production {
         /* hostInstances List */
         hosts = new ArrayList<HostInstance>();
         sourcesTryingToDiffie = new ArrayList<String>();
+        machineLocalAddresses = new ArrayList<String>();
 
+        Enumeration e = null;
+        try {
+            e = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        }
+        while(e.hasMoreElements())
+        {
+            NetworkInterface n = (NetworkInterface) e.nextElement();
+            Enumeration ee = n.getInetAddresses();
+            while (ee.hasMoreElements())
+            {
+                InetAddress i = (InetAddress) ee.nextElement();
+                machineLocalAddresses.add(i.getHostAddress());
+            }
+        }
     }
 
 
@@ -92,7 +109,8 @@ public class production {
                 /**** inbound packet ***/
                 Packet packet = prod.w.recv();
                 String hostAddress = packet.getIpv4().getDstAddrStr();
-                if (hostAddress.equals(prod.getLocalAddress())) {
+               // if (hostAddress.equals(prod.getLocalAddress())) {
+                    if(prod.isAddressIsLocal(hostAddress)) {
                     if(prod.IsHostExists(packet.getSrcAddr())) {
                         class RunMe implements Runnable {
                             private production prod;
@@ -243,6 +261,10 @@ public class production {
         p.getIpv4().setTotalLength(myraw.length);
         return p;
 
+    }
+
+    private boolean isAddressIsLocal(String address){
+        return this.machineLocalAddresses.contains(address);
     }
 
 
