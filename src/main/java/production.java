@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -34,6 +35,7 @@ public class production {
     private JFrame frame;
     private WinDivert w;
     protected ArrayList<String> sourcesTryingToDiffie;
+    private String localAddress = null;
 
     public production(){
 
@@ -48,17 +50,22 @@ public class production {
         /* hostInstances List */
         hosts = new ArrayList<HostInstance>();
         sourcesTryingToDiffie = new ArrayList<String>();
+
     }
 
 
-    public static void main(String[] args) throws WinDivertException, FileNotFoundException {
+    public static void main(String[] args) throws WinDivertException, FileNotFoundException, UnknownHostException {
 
         /* Production class */
         production prod = new production();
+        try {
+            prod.setLocalAddress(InetAddress.getLocalHost().getHostAddress());
+        }
+        catch (UnknownHostException u){
+            u.printStackTrace();
+            System.exit(1);
+        }
 
-       // System.out.println("22222");
-
-      //  System.loadLibrary("Windivert");
         /* read unsecured protocols file*/
         File file = new File("unsecured.config");
         Scanner myReader = new Scanner(file);
@@ -69,40 +76,52 @@ public class production {
         String filter = new String();
         for(int i=0;i<unsecuredProtocols.size();i++) {
             if(i < unsecuredProtocols.size() -1)
-                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or ";
+                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or tcp.SrcPort = " + unsecuredProtocols.get(i) + " or ";
             else
-                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or tcp.SrcPort = 21";
+                filter += "tcp.DstPort = " + unsecuredProtocols.get(i) + " or tcp.SrcPort = " + unsecuredProtocols.get(i);
         }
 
+        System.out.println(filter);
         /* Open Windivert Handle */
         prod.w = new WinDivert(filter);
-        System.out.println(Platform.is64Bit());
         prod.w.open(); // packets will be captured from now on
 
         /** Main Loop **/
         while (true) {
             try {
-
-                Packet packet = prod.w.recv();  // read a single packet
-                /* Is Host Exists? */
+                /**** inbound packet ***/
+                Packet packet = prod.w.recv();
                 String hostAddress = packet.getIpv4().getDstAddrStr();
+                if (hostAddress.equals(prod.getLocalAddress())) {
+                    if(prod.IsHostExists(packet.getSrcAddr())) {
+                        class RunMe implements Runnable {
+                            private production prod;
+                            private String hostAddress;
 
-                if (hostAddress.equals("192.168.1.192")) {
-                    if (prod.IsHostExists(packet.getSrcAddr())) {
-                        HostInstance hi = prod.getHostInstance(packet.getSrcAddr());
-                        try {
-                            byte[] payload;
-                            payload = hi.getAes().decrypt(packet.getPayload());
-                            Packet p = prod.generateNewPacketWithPaylod(packet, payload); //create new packet with encrypted payload
-                            p.recalculateChecksum(); //checksum
-                            prod.w.send(p, true); //send to server
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            public RunMe(production prodInstance, String hostAddress) {
+                                this.prod = prodInstance;
+                                this.hostAddress = hostAddress;
+                            }
+                            @Override
+                            public void run() {
+                               try {
+                                   HostInstance hi = prod.getHostInstance(packet.getSrcAddr());
+                                   byte[] payload = hi.getAes().decrypt(packet.getPayload());
+                                   Packet p = prod.generateNewPacketWithPaylod(packet, payload); //create new packet with encrypted payload
+                                   p.recalculateChecksum(); //checksum
+                                   prod.w.send(p, false); //send to server
+                               }
+                               catch (Exception e){
+                                   e.printStackTrace();
+                               }
+
+                            }
                         }
-
+                        new RunMe(prod, hostAddress).run();
                     }
-                } else {
-
+                }
+                else {
+                    /**** Outbound packet ***/
                     boolean isHostExists = prod.IsHostExists(hostAddress);
                     if (!isHostExists && !prod.sourcesTryingToDiffie.contains(hostAddress)) {
                         prod.sourcesTryingToDiffie.add(hostAddress);
@@ -132,7 +151,7 @@ public class production {
                                     payload = hi.getAes().encrypt(packet.getPayload());
                                     Packet p = this.prod.generateNewPacketWithPaylod(packet, payload);
                                     p.recalculateChecksum(); //checksum
-                                    prod.w.send(p, true); //send to server
+                                    prod.w.send(p, false); //send to server
                                     LogPanel.logEvent(new String("[ENC]: " + new String(packet.getPayload())));
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -185,6 +204,8 @@ public class production {
 
     }
 
+
+
     /* get host from hostInstance list by ip , return null otherwise */
     public HostInstance getHostInstance(String ip){
         HostInstance result = null;
@@ -224,7 +245,19 @@ public class production {
 
     }
 
+
+    /************** SETTERS **************/
+    /* Set production local ip for incoming */
+    private void setLocalAddress(String localAddress){
+        this.localAddress = localAddress;
+    }
+
     /************** GETTERS **************/
+
+    private String getLocalAddress(){
+        return this.localAddress;
+    }
+
     protected ArrayList<HostInstance> getHosts(){
         return this.hosts;
     }

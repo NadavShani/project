@@ -20,7 +20,7 @@ public class Client
     private aliceDH alice = null;
     private boolean isConnected = false;
     private AES aes;
-    private final int maxAttempts = 5;
+    private final int maxAttempts = 3;
 
 
     protected AES getAes(){
@@ -55,7 +55,7 @@ public class Client
                     attempt++;
                     LogPanel.logEvent("Time Out - Will Retry Again in 2 Seconds (attempt: " + attempt + "/" + maxAttempts + ") - " + address);
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(500);
                     }
                     catch (InterruptedException t) {
                         t.printStackTrace();

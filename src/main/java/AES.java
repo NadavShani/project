@@ -18,7 +18,7 @@ public class AES {
     private boolean isEncryptMode;
     public AlgorithmParameters aesParams;
 
-    public AES(byte [] sharedsecret) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException {
+    public AES(byte [] sharedsecret) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, InvalidAlgorithmParameterException {
         this.secret = new SecretKeySpec(sharedsecret,0,16,"AES");
         this.cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         this.cipher.init(Cipher.ENCRYPT_MODE, this.secret);
@@ -52,7 +52,7 @@ public class AES {
 
     }
 
-    public byte [] encrypt(byte [] clearText) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    public byte [] encrypt(byte [] clearText) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, IOException {
        // this.cipher.init(Cipher.ENCRYPT_MODE, this.secret);
         if(isEncryptMode == false) {
             this.cipher.init(Cipher.ENCRYPT_MODE, this.secret, this.aesParams);
