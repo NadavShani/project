@@ -4,6 +4,7 @@ import com.github.ffalcinelli.jdivert.exceptions.*;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -20,6 +21,8 @@ public class production {
     private static int frameHeight = 600;
     private static int diffiePort = 5300;
     private static int managementPort = 5301;
+    private static int commandPort = 5302;
+
     private ArrayList<HostInstance> hosts;
     private GUI gui;
     private JFrame frame;
@@ -187,7 +190,6 @@ public class production {
             intializePacket.getTcp().setDstPort(managementPort);
             intializePacket.recalculateChecksum();
             w.send(intializePacket);
-            System.out.println(intializePacket.getRaw());
             success = true;
 
         }
@@ -199,8 +201,12 @@ public class production {
         return success;
     }
 
-    public static void sendCommandToServer(String server,String command){
-        LogPanel.logEvent("Sending Command: +" + command + " To:" + server);
+    public static void sendCommandToServer(String server,String command) {
+        try {
+            clientCommandSocket clientCommandSocket = new clientCommandSocket(command,server,commandPort);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /* Add Host Instance To Production Host Instances, this function is called by diffie thread , also handle gui */
