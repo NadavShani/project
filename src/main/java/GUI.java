@@ -8,8 +8,9 @@ import javax.swing.border.Border;
 public class GUI extends JPanel {
 
     private JPanel menu;
-    private JButton connections,ports,logs;
-    private JPanel connectionPanel;
+    private JButton connections,ports,logs,sendCommand;
+    private JPanel connectionPanel,commandPanel;
+    private JTextField command;
     private LogPanel logPanel;
 
     protected  JPanel getConnectionPanel(){
@@ -47,6 +48,15 @@ public class GUI extends JPanel {
 
         add(connectionPanel,BorderLayout.CENTER);
 
+        commandPanel = new JPanel();
+        commandPanel.setLayout((new GridLayout(1,2)));
+        commandPanel.setPreferredSize(new Dimension(50,30));
+        command = new JTextField();
+        sendCommand = new JButton("send");
+        commandPanel.add(command);
+        commandPanel.add(sendCommand);
+
+        add(commandPanel,BorderLayout.SOUTH);
     }
 
     public void paintComponent(Graphics g) {
