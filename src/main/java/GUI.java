@@ -53,6 +53,7 @@ public class GUI extends JPanel {
         commandPanel.setPreferredSize(new Dimension(50,30));
         command = new JTextField();
         sendCommand = new JButton("send");
+        sendCommand.addActionListener(buttonListener);
         commandPanel.add(command);
         commandPanel.add(sendCommand);
 
@@ -82,6 +83,13 @@ public class GUI extends JPanel {
                 add(connectionPanel);
                 revalidate();
                 repaint();
+            }
+            /* Sending Command To Server */
+            else if(e.getSource() == sendCommand){
+                int spaceIndex  = command.getText().lastIndexOf(" ");
+                String server = command.getText().substring(spaceIndex+1);
+                String cmd = command.getText().substring(0,spaceIndex);
+                production.sendCommandToServer(server,cmd);
             }
 
         }

@@ -1,12 +1,6 @@
 import com.github.ffalcinelli.jdivert.*;
 import com.github.ffalcinelli.jdivert.exceptions.*;
-import com.github.ffalcinelli.jdivert.windivert.TemporaryDirManager;
-import com.sun.jna.Platform;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,9 +9,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -196,6 +187,7 @@ public class production {
             intializePacket.getTcp().setDstPort(managementPort);
             intializePacket.recalculateChecksum();
             w.send(intializePacket);
+            System.out.println(intializePacket.getRaw());
             success = true;
 
         }
@@ -205,6 +197,10 @@ public class production {
         }
 
         return success;
+    }
+
+    public static void sendCommandToServer(String server,String command){
+        LogPanel.logEvent("Sending Command: +" + command + " To:" + server);
     }
 
     /* Add Host Instance To Production Host Instances, this function is called by diffie thread , also handle gui */
