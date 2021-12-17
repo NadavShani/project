@@ -10,6 +10,7 @@ public class HostInstance {
     private port [] ports;
     private AES aes;
     private String keySecretAsString;
+    private boolean isServerEncrypting;
 
     @Override
     public String toString() {
@@ -29,6 +30,7 @@ public class HostInstance {
         this.hostIP = hostIP;
         this.aes = aes;
         this.keySecretAsString = aes.getKeyFromAes();
+        isServerEncrypting = true;
         //this.sharedsecret = sharedsecret;
 
     }
@@ -59,7 +61,9 @@ public class HostInstance {
         return keySecretAsString;
     }
 
-
+    public boolean isServerEncrypting() {
+        return isServerEncrypting;
+    }
 
     /************** SETTERS **************/
 
@@ -85,7 +89,9 @@ public class HostInstance {
     public void setKeySecretAsString(String keySecretAsString) {
         this.keySecretAsString = keySecretAsString;
     }
-
+    public void setServerEncrypting(boolean isServerEncrypting){
+        this.isServerEncrypting = isServerEncrypting;
+    }
 
 
 }

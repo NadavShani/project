@@ -17,6 +17,7 @@ import java.util.*;
 
 public class production {
 
+    public static production prod;
     private static int frameWidth = 800;
     private static int frameHeight = 600;
     private static int diffiePort = 5300;
@@ -68,7 +69,7 @@ public class production {
     public static void main(String[] args) throws WinDivertException, FileNotFoundException, UnknownHostException {
 
         /* Production class */
-        production prod = new production();
+        prod = new production();
         try {
             prod.setLocalAddress(InetAddress.getLocalHost().getHostAddress());
         }
@@ -117,11 +118,17 @@ public class production {
                             @Override
                             public void run() {
                                try {
+                                   byte[] payload;
+                                   Packet p;
                                    HostInstance hi = prod.getHostInstance(packet.getSrcAddr());
-                                   byte[] payload = hi.getAes().decrypt(packet.getPayload());
-                                   Packet p = prod.generateNewPacketWithPaylod(packet, payload); //create new packet with encrypted payload
-                                   p.recalculateChecksum(); //checksum
-                                   prod.w.send(p, false); //send to server
+                                   if(hi.isServerEncrypting()) {
+                                       payload = hi.getAes().decrypt(packet.getPayload());
+                                       p = prod.generateNewPacketWithPaylod(packet, payload); //create new packet with encrypted payload
+                                       p.recalculateChecksum(); //checksum
+                                       prod.w.send(p, false); //send to server
+                                   }
+                                   else
+                                       prod.w.send(packet, false); //send to server
                                }
                                catch (Exception e){
                                    e.printStackTrace();
@@ -203,7 +210,7 @@ public class production {
 
     public static void sendCommandToServer(String server,String command) {
         try {
-            clientCommandSocket clientCommandSocket = new clientCommandSocket(command,server,commandPort);
+            clientCommandSocket clientCommandSocket = new clientCommandSocket(prod,command,server,commandPort);
         } catch (IOException e) {
             e.printStackTrace();
         }
