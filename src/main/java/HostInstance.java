@@ -30,7 +30,7 @@ public class HostInstance {
         this.hostIP = hostIP;
         this.aes = aes;
         this.keySecretAsString = aes.getKeyFromAes();
-        isServerEncrypting = true;
+        isServerEncrypting = false;
         //this.sharedsecret = sharedsecret;
 
     }
