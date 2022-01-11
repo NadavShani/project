@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+/*
+CLASS: LogPanel - this class is responsible for the logging window in the gui
+*/
 
 
 public class LogPanel extends JPanel {

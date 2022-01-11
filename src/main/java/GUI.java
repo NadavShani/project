@@ -5,6 +5,9 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+/*
+CLASS: GUI - This class is the gui class panel
+*/
 public class GUI extends JPanel {
 
     private JPanel menu;

@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
-
+/*
+CLASS: diffieThread - this class initialize diffie hellman in a new Thread
+*/
 public class diffieThread extends Thread {
 
     private String connecctToAddress;
@@ -24,7 +26,11 @@ public class diffieThread extends Thread {
     public Client getClient(){
         return this.client;
     }
-
+    /*
+    Function: run - thread code - This thread connects to a server at port 5301 and Initialize The Key Exchange
+    INPUT : NULL
+    OUTPUT: NULL
+    */
     public void run(){
         try {
             client = new Client(connecctToAddress, port);

@@ -9,7 +9,9 @@ import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
+/*
+CLASS: AES - this class representing the aes algorithm with the ability to encrypt or decrypt messages
+*/
 public class AES {
 
     private SecretKeySpec secret;
@@ -37,7 +39,7 @@ public class AES {
 
 
     }
-
+    /************** GETTERS **************/
     /*Get Secret Key As String from AES */
     public String getKeyFromAes(){
         return toHexString(this.secret.getEncoded());
@@ -51,7 +53,11 @@ public class AES {
         return this.secret;
 
     }
-
+    /*
+    Function: encrypt - encrypt payload
+    INPUT : clear text
+    OUTPUT: encrypted text
+    */
     public byte [] encrypt(byte [] clearText) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, IOException {
        // this.cipher.init(Cipher.ENCRYPT_MODE, this.secret);
         if(isEncryptMode == false) {
@@ -60,6 +66,11 @@ public class AES {
         }
         return this.cipher.doFinal(clearText);
     }
+    /*
+    Function: decrypt - decrypt payload
+    INPUT : encrypted text
+    OUTPUT: clear text
+    */
     public byte [] decrypt(byte [] encryptedMessage) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
         if(isEncryptMode == true) {
             this.cipher.init(Cipher.DECRYPT_MODE, this.secret, this.aesParams);

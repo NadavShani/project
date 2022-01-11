@@ -4,7 +4,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-
+/*
+CLASS: clientCommandSocket - this class handle the commands' communication between the client and the server
+*/
 public class clientCommandSocket extends Thread {
 
     private production prodInstance;
@@ -17,7 +19,11 @@ public class clientCommandSocket extends Thread {
         this.port=port;
         start();
     }
-
+    /*
+    Function: run - thread code - send command to server and waiting for response
+    INPUT : NULL
+    OUTPUT: NULL
+    */
     @Override
     public void run() {
         Socket socket = null;

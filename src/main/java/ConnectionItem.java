@@ -2,6 +2,9 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import javax.swing.*;
 
+/*
+CLASS: ConnectionItem - this class is depict the connections item in the gui window
+*/
 public class ConnectionItem extends JPanel {
 
     /* test constructor */

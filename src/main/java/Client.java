@@ -11,6 +11,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
+/*
+CLASS: Client - this class initialize diffie hellman and manage the algorithm
+*/
+
 public class Client
 {
     // initialize socket and input output streams
@@ -32,7 +36,11 @@ public class Client
 
     }
 
-    // constructor to put ip address and port
+    /*
+    Function: Client - this class initialize diffie hellman and manage the algorithm
+    INPUT : server's address, server's socket port
+    OUTPUT: NULL
+    */
     public Client(String address, int port) throws Exception {
 
         isConnected=false;
@@ -68,7 +76,6 @@ public class Client
                 }
             }
         }
-
         /* Startin DH */
 
         if(isConnected) {
@@ -87,48 +94,19 @@ public class Client
                 alice.phase(payload);
                 alice.generateSecret();
 
-
-              //  in.read(iv); /* bob iv */
-
-
                 aes = new AES(alice.getSecret());
                 byte [] iv = aes.getEncodedParams();
-              //  AES aes2 = new AES(alice.getSecret(),iv);
-                /* trying to encrypt message to bob */
-               // while(in.available() < 1) /* not avliable */
 
                 out.write(iv);
-               // System.out.println(new String(iv));
+
                 while (!in.readUTF().equals("iv-ok")) ;
-
-              //  byte [] encrypted = aes.encrypt("hello world".getBytes());
-              //  System.out.println("encyrpted is : " + new String(encrypted));
-
-              //  out.write(encrypted);
-
-               // byte [] fromServer = new byte[4096];
-              //  in.read(fromServer);
-              //  System.out.println(new String(Decode(fromServer)));
-             //   System.out.println(new String(aes.decrypt(Decode(fromServer))));
 
 
             } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException e) {
                 e.printStackTrace();
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
-            } //catch (IllegalBlockSizeException e) {
-            // catch (IllegalBlockSizeException e) {
-              //  e.printStackTrace();
-           // } catch (BadPaddingException e) {
-               // e.printStackTrace();
-          //  } //catch (InvalidAlgorithmParameterException e) {
-               // e.printStackTrace();
-           // }
-            //  e.printStackTrace();
-           // } catch (BadPaddingException e) {
-             //   e.printStackTrace();
-           // }
-            /* close connection */
+            }
             try
             {
                 in.close();
@@ -136,8 +114,6 @@ public class Client
                 socket.close();
                 LogPanel.logEvent("secret generated");
                 LogPanel.logEvent("closing Socket");
-
-
 
             }
             catch(IOException i)
@@ -147,7 +123,6 @@ public class Client
         }
 
     }
-
 
     public byte[] Decode(byte[] packet)
     {

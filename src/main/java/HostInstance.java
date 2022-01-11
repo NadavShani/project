@@ -1,6 +1,8 @@
 import java.util.Arrays;
 import java.util.Date;
-
+/*
+CLASS: HostInstance - host instances - this class represent the servers instances
+*/
 public class HostInstance {
 
     private String lastTimeEstablished;

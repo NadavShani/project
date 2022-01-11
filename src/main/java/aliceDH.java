@@ -8,7 +8,10 @@ import javax.crypto.spec.*;
 import javax.crypto.interfaces.*;
 import com.sun.crypto.provider.SunJCE;
 
-/* bob is server */
+/*
+CLASS: aliceDH - this class handle the df algorithm itself
+*/
+
 public class aliceDH {
 
 
@@ -50,13 +53,22 @@ public class aliceDH {
             e.printStackTrace();
         }
     }
-
+    /*
+    Function: generateSecret - generate the final sercret
+    INPUT : NULL
+    OUTPUT: NULL
+    */
     public void generateSecret(){
         aliceSharedSecret = aliceKeyAgree.generateSecret();
         LogPanel.logEvent("Alice secret: " +
                 toHexString(aliceSharedSecret));
     }
 
+    /*
+    Function: phase - diffie hellman phase after receiving another side public key
+    INPUT : public key
+    OUTPUT: NULL
+    */
     public void phase(byte [] bobPubKeyEnc ) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
         aliceKeyFac = KeyFactory.getInstance("DH");
         x509KeySpec = new X509EncodedKeySpec(bobPubKeyEnc);
@@ -65,7 +77,11 @@ public class aliceDH {
         aliceKeyAgree.doPhase(bobPubKey, true);
     }
 
-
+    /*
+    Function: generate dh key pair
+    INPUT : NULL
+    OUTPUT: NULL
+    */
     public void generatePublicKeyFrom() throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
 
         /*

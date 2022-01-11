@@ -15,6 +15,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
+/*
+CLASS: Production - this is main Thread With Main Loop
+*/
+
 public class production {
 
     public static production prod;
@@ -31,6 +35,7 @@ public class production {
     protected ArrayList<String> sourcesTryingToDiffie;
     private String localAddress = null;
     private ArrayList<String> machineLocalAddresses;
+
 
     public production(){
 
@@ -64,7 +69,11 @@ public class production {
             }
         }
     }
-
+    /*
+    Function: main - main loop - listening for packets and decide what to do with them
+    INPUT : parameters
+    OUTPUT: NULL
+    */
     public static void main(String[] args) throws WinDivertException, FileNotFoundException, UnknownHostException {
 
         /* Production class */
@@ -187,6 +196,13 @@ public class production {
             }
         }
 
+
+    /*
+    Function: sendNotificationToHost - Send Notification To Server To Start Diffie Hellman
+    INPUT : old packet from client
+    OUTPUT: new packet to server
+    */
+
     /* if packet source ip is not in hosts list,  we should request server to start listening to diffie hellman */
     public boolean sendNotificationToHost(Packet old){
         LogPanel.logEvent("Notify: " + old.getDstAddr() + " to start diffie session");
@@ -207,6 +223,11 @@ public class production {
         return success;
     }
 
+    /*
+    Function: sendCommandToServer - Send Command To Server To do something
+    INPUT : server's ip,command
+    OUTPUT: NULL
+    */
     public static void sendCommandToServer(String server,String command) {
         try {
             clientCommandSocket clientCommandSocket = new clientCommandSocket(prod,command,server,commandPort);
@@ -214,6 +235,12 @@ public class production {
             e.printStackTrace();
         }
     }
+
+    /*
+    Function: addHostInstance - Add new Host Recognized By The Client
+    INPUT : Server hostAddress , Aes class with the new secret
+    OUTPUT: NULL
+    */
 
     /* Add Host Instance To Production Host Instances, this function is called by diffie thread , also handle gui */
     public synchronized void addHostInstance(InetAddress hostAddress, AES aes){
@@ -231,7 +258,11 @@ public class production {
 
     }
 
-
+    /*
+    Function: getHostInstance - get host instance by ip
+    INPUT : host ip
+    OUTPUT: host instance
+    */
 
     /* get host from hostInstance list by ip , return null otherwise */
     public HostInstance getHostInstance(String ip){
@@ -243,6 +274,12 @@ public class production {
         return result;
     }
 
+    /*
+    Function: IsHostExists - is hostInstance Exists by ip
+    INPUT : host ip
+    OUTPUT: host exists (T/F(
+    */
+
     public boolean IsHostExists(String ip){
         boolean result=false;
         for(HostInstance h : hosts) {
@@ -251,7 +288,11 @@ public class production {
         }
         return result;
     }
-
+    /*
+    Function: generateNewPacketWithPaylod - get old packet and create a new packet with the same headers
+    INPUT : old pakcet, new payload
+    OUTPUT: new packet with old headers but with new payload
+    */
     public Packet generateNewPacketWithPaylod(Packet oldPacket,byte [] newPayLoad) throws WinDivertException { /*old packet and new payload*/
         /* clone header */
         byte[] header = Util.getBytesAtOffset(ByteBuffer.wrap(oldPacket.getRaw()), 0, oldPacket.getRaw().length - oldPacket.getPayload().length); //clone header
@@ -271,7 +312,11 @@ public class production {
         return p;
 
     }
-
+    /*
+    Function: isAddressIsLocal - is ip is inside on the adapters in the client
+    INPUT : ip/address
+    OUTPUT: yes or false
+    */
     private boolean isAddressIsLocal(String address){
         return this.machineLocalAddresses.contains(address);
     }
